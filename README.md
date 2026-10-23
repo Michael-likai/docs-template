@@ -120,7 +120,7 @@ npm run deploy            # 两个平台都发
 2. 修改 `package.json` 的 `name` 与 `site.config.ts`。
 3. 更新 `README.md`、`LICENSE` 中的作者信息。
 4. 配置仓库 Secrets：`CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`CF_PAGES_PROJECT`、`SITE_URL`。
-5. 推送后 `.github/workflows/deploy.yml` 会自动构建并部署到 Cloudflare Pages。
+5. 在仓库 **Actions → Deploy → Run workflow** 手动触发部署（默认不随 push 自动运行，避免缺少 Secrets 时失败）。
 
 ## 许可证
 

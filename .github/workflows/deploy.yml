@@ -1,8 +1,9 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main]
+  # Deployment is opt-in: configure the secrets/variables below, then run this
+  # workflow manually from the Actions tab. Add a `push` trigger if you want
+  # every push to deploy (make sure the secrets exist first).
   workflow_dispatch:
 
 jobs:
