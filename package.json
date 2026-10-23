@@ -1,0 +1,26 @@
+{
+  "name": "folio-docs-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A content-first VitePress template for tutorials, product docs and AI knowledge bases.",
+  "scripts": {
+    "gen:sidebar": "node scripts/gen-sidebar.mjs",
+    "dev": "node scripts/gen-sidebar.mjs && vitepress dev docs",
+    "build": "node scripts/gen-sidebar.mjs && vitepress build docs",
+    "preview": "vitepress preview docs",
+    "new": "node scripts/new.mjs",
+    "deploy": "node scripts/deploy.mjs all",
+    "deploy:cloudflare": "node scripts/deploy.mjs cloudflare",
+    "deploy:edgeone": "node scripts/deploy.mjs edgeone",
+    "clean": "node -e \"import('node:fs').then(fs=>{for(const p of ['docs/.vitepress/dist','docs/.vitepress/cache','.deploy'])fs.rmSync(p,{recursive:true,force:true})})\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3",
+    "vitepress": "^1.6.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

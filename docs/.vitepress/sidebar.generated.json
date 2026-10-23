@@ -1,0 +1,96 @@
+{
+  "/guide/": [
+    {
+      "text": "概览",
+      "link": "/guide/"
+    },
+    {
+      "text": "开始",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "快速开始",
+          "link": "/guide/getting-started"
+        },
+        {
+          "text": "写内容",
+          "link": "/guide/writing-content"
+        }
+      ]
+    },
+    {
+      "text": "进阶",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "定制站点",
+          "link": "/guide/customizing"
+        },
+        {
+          "text": "部署上线",
+          "link": "/guide/deploying"
+        }
+      ]
+    }
+  ],
+  "/reference/": [
+    {
+      "text": "概览",
+      "link": "/reference/"
+    },
+    {
+      "text": "配置",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "站点配置",
+          "link": "/reference/configuration"
+        }
+      ]
+    },
+    {
+      "text": "规范",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "Frontmatter",
+          "link": "/reference/frontmatter"
+        },
+        {
+          "text": "脚本命令",
+          "link": "/reference/scripts"
+        }
+      ]
+    }
+  ],
+  "/kb/": [
+    {
+      "text": "概览",
+      "link": "/kb/"
+    },
+    {
+      "text": "使用",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "常见问题",
+          "link": "/kb/faq"
+        }
+      ]
+    },
+    {
+      "text": "实践",
+      "collapsed": false,
+      "items": [
+        {
+          "text": "让站点对 AI 友好",
+          "link": "/kb/ai-ready"
+        },
+        {
+          "text": "故障排查",
+          "link": "/kb/troubleshooting"
+        }
+      ]
+    }
+  ]
+}

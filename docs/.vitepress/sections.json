@@ -1,0 +1,28 @@
+{
+  "sections": [
+    {
+      "dir": "guide",
+      "label": "指南",
+      "sidebar": "使用指南",
+      "nav": true,
+      "description": "从安装、写作到定制与部署，把这个模板变成你自己的站点。"
+    },
+    {
+      "dir": "reference",
+      "label": "参考",
+      "sidebar": "参考手册",
+      "nav": true,
+      "description": "站点配置、Frontmatter 与脚本命令的完整说明。"
+    },
+    {
+      "dir": "kb",
+      "label": "知识库",
+      "sidebar": "知识库",
+      "nav": true,
+      "description": "FAQ、故障排查，以及让站点对 AI 更友好的实践。"
+    }
+  ],
+  "nav": [
+    { "text": "关于", "link": "/about" }
+  ]
+}
