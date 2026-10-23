@@ -77,7 +77,10 @@ jobs:
             npx -y wrangler@3 pages project create "$PROJECT" --production-branch main
           fi
           npx -y wrangler@3 pages deploy docs/.vitepress/dist --project-name "$PROJECT" --branch "$BRANCH" --commit-dirty=true
-          echo "url=https://${BRANCH}.${PROJECT}.pages.dev" >> "$GITHUB_OUTPUT"
+          SUBDOMAIN=$(curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PROJECT}" \
+            | node -e 'let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => { try { process.stdout.write(JSON.parse(s).result?.subdomain || "") } catch { process.stdout.write("") } })')
+          echo "url=https://${BRANCH}.${SUBDOMAIN:-${PROJECT}.pages.dev}" >> "$GITHUB_OUTPUT"
 
       - name: Comment preview URL
         if: steps.gate.outputs.enabled == 'true'

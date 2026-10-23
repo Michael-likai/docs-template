@@ -100,7 +100,7 @@ Token 在 <https://dash.cloudflare.com/profile/api-tokens> 创建，选择模板
 1. 新建分支并提交修改。
 2. 向 `main` 开 Pull Request。
 3. Actions 运行 **Cloudflare Pages Preview**：`pnpm build`（`PREVIEW=1`，注入 `noindex`），然后 `wrangler pages deploy --branch pr-<编号>`。
-4. PR 下方出现预览地址：`https://pr-<编号>.<项目名>.pages.dev`，之后每次 push 自动覆盖更新。
+4. PR 下方出现预览地址：`https://pr-<编号>.<项目子域>.pages.dev`（具体以 PR 评论为准），之后每次 push 自动覆盖更新。
 5. 预览站 `robots.txt` 全部 Disallow，不会进入搜索引擎。
 
 ::: tip 首次运行
