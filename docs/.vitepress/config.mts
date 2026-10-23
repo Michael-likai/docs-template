@@ -8,6 +8,7 @@ import { buildHead, buildEnd, markdownDevPlugin } from './seo'
 const SITE_URL = (process.env.SITE_URL || siteConfig.url).replace(/\/+$/, '')
 const BASE = process.env.BASE_PATH || '/'
 const CLEAN_URLS = process.env.CLEAN_URLS !== 'false'
+const PREVIEW = process.env.PREVIEW === '1'
 const docsRoot = resolve(__dirname, '..')
 
 /** Convert a clean site path to its `.html` form when cleanUrls is disabled. */
@@ -91,8 +92,8 @@ export default defineConfig({
           }
         })
   },
-  transformHead: (ctx) => buildHead(ctx, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS }),
-  buildEnd: (vpSite) => buildEnd(vpSite, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS }),
+  transformHead: (ctx) => buildHead(ctx, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS, preview: PREVIEW }),
+  buildEnd: (vpSite) => buildEnd(vpSite, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS, preview: PREVIEW }),
   vite: {
     define: {
       __CLEAN_URLS__: JSON.stringify(CLEAN_URLS)

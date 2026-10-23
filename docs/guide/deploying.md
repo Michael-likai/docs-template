@@ -78,6 +78,39 @@ npm run deploy
 3. 等待证书签发（通常几分钟）。
 4. 把 `SITE_URL` 和 `site.config.ts` 的 `url` 改为最终域名并重新构建。
 
+
+## Cloudflare Pages PR 预览
+
+仓库内置 `[cf-preview.yml](https://github.com/Michael-likai/docs-template/blob/main/.github/workflows/cf-preview.yml)`：每个 Pull Request 会自动构建一份带 **noindex** 的预览站，并在 PR 里留言更新地址，合并前可以点开看效果。
+
+### 一次性配置
+
+在 GitHub 仓库 **Settings → Secrets and variables → Actions** 添加：
+
+| 类型 | 名称 | 说明 |
+| --- | --- | --- |
+| Secret | `CLOUDFLARE_API_TOKEN` | Cloudflare API Token，权限至少包含 **Account → Cloudflare Pages → Edit** |
+| Secret | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 账号 ID（控制台右侧或 `wrangler whoami`） |
+| Variable | `CF_PAGES_PROJECT`（可选） | Pages 项目名，默认 `docs-template` |
+
+Token 在 <https://dash.cloudflare.com/profile/api-tokens> 创建，选择模板 **Cloudflare Pages** 即可，不需要 Zone 权限。
+
+### 工作方式
+
+1. 新建分支并提交修改。
+2. 向 `main` 开 Pull Request。
+3. Actions 运行 **Cloudflare Pages Preview**：`pnpm build`（`PREVIEW=1`，注入 `noindex`），然后 `wrangler pages deploy --branch pr-<编号>`。
+4. PR 下方出现预览地址：`https://pr-<编号>.<项目名>.pages.dev`，之后每次 push 自动覆盖更新。
+5. 预览站 `robots.txt` 全部 Disallow，不会进入搜索引擎。
+
+::: tip 首次运行
+如果 Pages 项目不存在，工作流会尝试用 `wrangler pages project create` 创建；若 Token 没有创建权限，先在 Cloudflare 控制台手动建一个项目再运行。
+:::
+
+::: warning Fork 的 PR
+来自 Fork 的 PR 拿不到仓库 Secrets，预览会被自动跳过（工作流仍然成功）；内部分支的 PR 不受影响。
+:::
+
 ## 上线后检查
 
 ```bash

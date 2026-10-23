@@ -22,6 +22,7 @@
 - **SEO**：canonical、OG/Twitter、sitemap、可选搜索引擎验证。
 - **本地搜索**：MiniSearch，无需外部服务。
 - **一键部署**：Cloudflare Pages 与 EdgeOne Makers 脚本，附缓存 / 安全 / 重定向配置。
+- **PR 预览**：每个 Pull Request 自动部署一份带 noindex 的 Cloudflare Pages 预览，链接自动回到 PR。
 - **可选统计**：Umami，同源反代规避广告拦截。
 
 ## 快速开始

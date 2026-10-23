@@ -18,6 +18,7 @@ interface BuildOptions {
   site: SiteConfig
   siteUrl: string
   cleanUrls: boolean
+  preview?: boolean
 }
 
 const SECTION_MAP = new Map(sectionsData.sections.map((s) => [s.dir, s]))
@@ -95,7 +96,7 @@ function breadcrumbs(rel: string, title: string, site: SiteConfig, siteUrl: stri
   }
 }
 
-export function buildHead(ctx: TransformHeadContext, { site, siteUrl, cleanUrls }: BuildOptions): HeadConfig[] {
+export function buildHead(ctx: TransformHeadContext, { site, siteUrl, cleanUrls, preview = false }: BuildOptions): HeadConfig[] {
   const { pageData } = ctx
   const rel = pageData.relativePath || 'index.md'
   const isHome = rel === 'index.md'
@@ -123,6 +124,8 @@ export function buildHead(ctx: TransformHeadContext, { site, siteUrl, cleanUrls 
     ['meta', { name: 'twitter:description', content: description }],
     ['meta', { name: 'twitter:image', content: image }]
   ]
+
+  if (preview) head.push(['meta', { name: 'robots', content: 'noindex, nofollow' }])
 
   if (site.features.markdownCopies) {
     head.push(['link', { rel: 'alternate', type: 'text/markdown', href: `${siteUrl}/${rel}` }])
@@ -196,7 +199,7 @@ export function buildHead(ctx: TransformHeadContext, { site, siteUrl, cleanUrls 
   return head
 }
 
-export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: string }, { site, siteUrl, cleanUrls }: BuildOptions) {
+export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: string }, { site, siteUrl, cleanUrls, preview = false }: BuildOptions) {
   const pages = vpSite.pages.filter((page) => page !== '404.md' && page.endsWith('.md'))
   const entries = makeEntries(vpSite.srcDir, pages, cleanUrls)
 
@@ -212,7 +215,7 @@ export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: stri
     writeLlms(vpSite.outDir, entries, site, siteUrl, cleanUrls)
   }
 
-  writeRobots(vpSite.outDir, site, siteUrl)
+  writeRobots(vpSite.outDir, site, siteUrl, preview)
 }
 
 interface Entry {
@@ -314,7 +317,11 @@ function writeLlms(
   writeFileSync(join(outDir, 'llms-full.txt'), full)
 }
 
-function writeRobots(outDir: string, site: SiteConfig, siteUrl: string) {
+function writeRobots(outDir: string, site: SiteConfig, siteUrl: string, preview = false) {
+  if (preview) {
+    writeFileSync(join(outDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n')
+    return
+  }
   const aiBots = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot', 'Google-Extended', 'Applebot-Extended', 'Bytespider']
   const lines = ['User-agent: *', 'Allow: /', 'Disallow: /assets/', 'Disallow: /s/', '']
   if (site.features.aiCrawlers) {
