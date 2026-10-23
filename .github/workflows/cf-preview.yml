@@ -88,12 +88,14 @@ jobs:
         with:
           script: |
             const marker = '<!-- cf-pages-preview -->'
-            const body = `${marker}
-            ### Cloudflare Pages 预览
-
-            ${process.env.PREVIEW_URL}
-
-            commit \`${process.env.COMMIT_SHA.slice(0, 7)}\` · 每次推送自动更新。预览站带 noindex。`
+            const body = [
+              marker,
+              '### Cloudflare Pages 预览',
+              '',
+              process.env.PREVIEW_URL,
+              '',
+              `commit \`${process.env.COMMIT_SHA.slice(0, 7)}\` · 每次推送自动更新。预览站带 noindex。`
+            ].join('\n')
             const { owner, repo } = context.repo
             const issue_number = context.payload.pull_request.number
             const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number })
