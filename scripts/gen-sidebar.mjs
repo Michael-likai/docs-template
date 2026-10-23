@@ -14,6 +14,7 @@ const docs = join(root, 'docs')
 const configDir = join(docs, '.vitepress')
 const sections = JSON.parse(readFileSync(join(configDir, 'sections.json'), 'utf8')).sections
 const output = join(configDir, 'sidebar.generated.json')
+const cleanUrls = process.env.CLEAN_URLS !== 'false'
 
 function frontmatter(source) {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(source)
@@ -48,7 +49,8 @@ for (const section of sections) {
     const title = meta.title || firstHeading(source) || file.replace(/\.md$/, '')
     const group = meta.group || section.sidebar
     const order = Number.isFinite(meta.order) ? meta.order : 999
-    const link = `/${section.dir}/${file.replace(/\.md$/, '')}`
+    const slug = file.replace(/\.md$/, '')
+    const link = `/${section.dir}/${slug}${cleanUrls ? '' : '.html'}`
     if (!groups.has(group)) groups.set(group, [])
     groups.get(group).push({ text: title, link, order })
   }

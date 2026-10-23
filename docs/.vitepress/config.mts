@@ -6,7 +6,15 @@ import sidebar from './sidebar.generated.json'
 import { buildHead, buildEnd, markdownDevPlugin } from './seo'
 
 const SITE_URL = (process.env.SITE_URL || siteConfig.url).replace(/\/+$/, '')
+const BASE = process.env.BASE_PATH || '/'
+const CLEAN_URLS = process.env.CLEAN_URLS !== 'false'
 const docsRoot = resolve(__dirname, '..')
+
+/** Convert a clean site path to its `.html` form when cleanUrls is disabled. */
+function pageLink(link: string) {
+  if (CLEAN_URLS || link.endsWith('/') || /\.[a-z0-9]+$/i.test(link) || /^https?:/.test(link)) return link
+  return `${link}.html`
+}
 
 const verification: HeadConfig[] = [
   ...(process.env.GOOGLE_SITE_VERIFICATION
@@ -49,16 +57,17 @@ const nav = [
       link: `/${section.dir}/`,
       activeMatch: `^/${section.dir}/`
     })),
-  ...sectionsData.nav
+  ...sectionsData.nav.map((item) => ({ ...item, link: pageLink(item.link) }))
 ]
 
 export default defineConfig({
   lang: siteConfig.lang,
+  base: BASE,
   title: siteConfig.name,
   titleTemplate: `:title · ${siteConfig.name}`,
   description: siteConfig.description,
   appearance: true,
-  cleanUrls: true,
+  cleanUrls: CLEAN_URLS,
   lastUpdated: true,
   head,
   markdown: {
@@ -71,16 +80,24 @@ export default defineConfig({
     transformItems: (items) =>
       items
         .filter((item) => !/(^|\/)404(\.html)?$/.test(item.url))
-        .map((item) => ({
-          ...item,
-          changefreq: 'weekly',
-          priority: item.url === '' || item.url === '/' || item.url.replace(/\/$/, '') === SITE_URL ? 1.0 : 0.8
-        }))
+        .map((item) => {
+          const pathname = item.url || '/'
+          const absolute = `${SITE_URL}${pathname.startsWith('/') ? pathname : `/${pathname}`}`
+          return {
+            ...item,
+            url: absolute,
+            changefreq: 'weekly',
+            priority: pathname === '' || pathname === '/' ? 1.0 : 0.8
+          }
+        })
   },
-  transformHead: (ctx) => buildHead(ctx, { site: siteConfig, siteUrl: SITE_URL }),
-  buildEnd: (vpSite) => buildEnd(vpSite, { site: siteConfig, siteUrl: SITE_URL }),
+  transformHead: (ctx) => buildHead(ctx, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS }),
+  buildEnd: (vpSite) => buildEnd(vpSite, { site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS }),
   vite: {
-    plugins: [markdownDevPlugin({ docsRoot, site: siteConfig, siteUrl: SITE_URL })]
+    define: {
+      __CLEAN_URLS__: JSON.stringify(CLEAN_URLS)
+    },
+    plugins: [markdownDevPlugin({ docsRoot, site: siteConfig, siteUrl: SITE_URL, cleanUrls: CLEAN_URLS })]
   },
   themeConfig: {
     nav,

@@ -2,6 +2,8 @@
 
 一个**内容优先**的 VitePress 模板：同一套代码可以做教程站、产品文档站或 AI 知识库。
 
+**在线预览：<https://michael-likai.github.io/docs-template/>**
+
 ![首页](./screenshots/home.png)
 
 ![文档页](./screenshots/docs.png)

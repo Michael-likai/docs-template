@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { withBase } from 'vitepress'
+import { withPage } from '../links'
 import { home } from '../../home'
 import sections from '../../sections.json'
 import Logo from './Logo.vue'
@@ -21,13 +21,13 @@ const sectionCount = sections.sections.length
       </h1>
       <p class="fh-lead">{{ home.lead }}</p>
       <div class="fh-actions">
-        <a class="fh-btn fh-primary" :href="withBase(home.primary.link)">
+        <a class="fh-btn fh-primary" :href="withPage(home.primary.link)">
           {{ home.primary.text }}
           <Icon name="arrow" :size="18" />
         </a>
-        <a class="fh-btn" :href="withBase(home.secondary.link)">{{ home.secondary.text }}</a>
+        <a class="fh-btn" :href="withPage(home.secondary.link)">{{ home.secondary.text }}</a>
       </div>
-      <a class="fh-notice" :href="withBase(home.notice.link)">
+      <a class="fh-notice" :href="withPage(home.notice.link)">
         <span class="fh-dot"></span>
         <span>{{ home.notice.text }}</span>
         <Icon name="arrow" :size="15" />
@@ -45,7 +45,7 @@ const sectionCount = sections.sections.length
           v-for="(mode, index) in home.modes.slice(0, sectionCount)"
           :key="mode.title"
           class="fh-mode"
-          :href="withBase(mode.link)"
+          :href="withPage(mode.link)"
           :style="{ '--d': `${index * 80}ms` }"
         >
           <span class="fh-mode-icon"><Icon :name="modeIcons[index] || 'book'" :size="24" /></span>
@@ -77,7 +77,7 @@ const sectionCount = sections.sections.length
         <p class="fh-kicker">From zero to deployed</p>
         <h2>从克隆到发布</h2>
         <p>没有数据库、没有后端服务。写完 Markdown，剩下的交给静态托管。</p>
-        <a class="fh-link" :href="withBase('/guide/deploying')">
+        <a class="fh-link" :href="withPage('/guide/deploying')">
           查看部署说明
           <Icon name="arrow" :size="15" />
         </a>
@@ -100,7 +100,7 @@ const sectionCount = sections.sections.length
           <h2>把它变成你的文档站</h2>
           <p>改一个配置文件、写第一篇 Markdown，就能开始。</p>
         </div>
-        <a class="fh-btn fh-primary" :href="withBase('/guide/getting-started')">开始阅读</a>
+        <a class="fh-btn fh-primary" :href="withPage('/guide/getting-started')">开始阅读</a>
       </div>
     </section>
   </div>

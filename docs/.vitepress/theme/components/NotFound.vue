@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { withBase } from 'vitepress'
+import { withPage } from '../links'
 import Icon from './Icon.vue'
 
 const links = [
@@ -16,7 +16,7 @@ const links = [
     <h1>这个页面不存在</h1>
     <p class="not-found-text">链接可能已经移动，或者地址拼写有误。可以回到首页，或按 <kbd>⌘</kbd> + <kbd>K</kbd> 搜索站内内容。</p>
     <div class="not-found-links">
-      <a v-for="link in links" :key="link.link" :href="withBase(link.link)">
+      <a v-for="link in links" :key="link.link" :href="withPage(link.link)">
         {{ link.text }}
         <Icon name="arrow" :size="15" />
       </a>

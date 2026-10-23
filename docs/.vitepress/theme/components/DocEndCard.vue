@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useData, withBase } from 'vitepress'
+import { useData } from 'vitepress'
+import { withPage } from '../links'
 import sections from '../../sections.json'
 import Icon from './Icon.vue'
 
@@ -10,8 +11,8 @@ const failed = ref(false)
 
 const relativePath = computed(() => page.value.relativePath || '')
 const section = computed(() => sections.sections.find((item) => relativePath.value.startsWith(`${item.dir}/`)))
-const markdownUrl = computed(() => withBase(`/${relativePath.value}`))
-const sectionUrl = computed(() => withBase(`/${section.value?.dir || ''}/`))
+const markdownUrl = computed(() => withPage(`/${relativePath.value}`))
+const sectionUrl = computed(() => withPage(`/${section.value?.dir || ''}/`))
 
 function legacyCopy(text: string) {
   const area = document.createElement('textarea')
@@ -53,7 +54,7 @@ async function copyMarkdown() {
       <p class="doc-end-title">读完了，接下来去哪？</p>
       <div class="doc-end-links">
         <a v-if="section" :href="sectionUrl">返回{{ section.sidebar }}</a>
-        <a :href="withBase('/')">回到首页</a>
+        <a :href="withPage('/')">回到首页</a>
         <a :href="markdownUrl" target="_blank" rel="noopener">查看 Markdown</a>
       </div>
     </div>

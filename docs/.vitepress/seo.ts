@@ -17,6 +17,7 @@ type Frontmatter = {
 interface BuildOptions {
   site: SiteConfig
   siteUrl: string
+  cleanUrls: boolean
 }
 
 const SECTION_MAP = new Map(sectionsData.sections.map((s) => [s.dir, s]))
@@ -39,9 +40,11 @@ function gitDate(srcDir: string, rel: string): string | undefined {
   return date
 }
 
-export function pagePath(relativePath: string): string {
+export function pagePath(relativePath: string, cleanUrls = true): string {
   const path = '/' + relativePath.replace(/\.md$/, '')
-  return path.replace(/(^|\/)index$/, '$1')
+  const routed = path.replace(/(^|\/)index$/, '$1')
+  if (!cleanUrls && !routed.endsWith('/')) return `${routed}.html`
+  return routed
 }
 
 function readFrontmatter(source: string): Frontmatter {
@@ -75,12 +78,12 @@ function cleanMarkdown(source: string, siteUrl: string): string {
     .trim()
 }
 
-function breadcrumbs(rel: string, title: string, site: SiteConfig, siteUrl: string) {
+function breadcrumbs(rel: string, title: string, site: SiteConfig, siteUrl: string, cleanUrls: boolean) {
   const [dir] = rel.split('/')
   const section = SECTION_MAP.get(dir)
   const crumbs = [{ name: site.name, item: siteUrl + '/' }]
   if (section) crumbs.push({ name: section.sidebar, item: `${siteUrl}/${section.dir}/` })
-  crumbs.push({ name: title, item: `${siteUrl}${pagePath(rel)}` })
+  crumbs.push({ name: title, item: `${siteUrl}${pagePath(rel, cleanUrls)}` })
   return {
     '@type': 'BreadcrumbList',
     itemListElement: crumbs.map((crumb, index) => ({
@@ -92,12 +95,12 @@ function breadcrumbs(rel: string, title: string, site: SiteConfig, siteUrl: stri
   }
 }
 
-export function buildHead(ctx: TransformHeadContext, { site, siteUrl }: BuildOptions): HeadConfig[] {
+export function buildHead(ctx: TransformHeadContext, { site, siteUrl, cleanUrls }: BuildOptions): HeadConfig[] {
   const { pageData } = ctx
   const rel = pageData.relativePath || 'index.md'
   const isHome = rel === 'index.md'
   const isNotFound = Boolean(pageData.isNotFound) || rel === '404.md'
-  const path = pagePath(rel)
+  const path = pagePath(rel, cleanUrls)
   const url = siteUrl + path
   const title = isHome ? site.title : `${pageData.title || site.name} | ${site.name}`
   const description = pageData.description || site.description
@@ -186,16 +189,16 @@ export function buildHead(ctx: TransformHeadContext, { site, siteUrl }: BuildOpt
       ...(meta.date ? { datePublished: meta.date } : {}),
       ...(modified ? { dateModified: modified } : {})
     })
-    graph.push(breadcrumbs(rel, String(pageData.title || ''), site, siteUrl))
+    graph.push(breadcrumbs(rel, String(pageData.title || ''), site, siteUrl, cleanUrls))
   }
 
   head.push(['script', { type: 'application/ld+json' }, JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })])
   return head
 }
 
-export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: string }, { site, siteUrl }: BuildOptions) {
+export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: string }, { site, siteUrl, cleanUrls }: BuildOptions) {
   const pages = vpSite.pages.filter((page) => page !== '404.md' && page.endsWith('.md'))
-  const entries = makeEntries(vpSite.srcDir, pages)
+  const entries = makeEntries(vpSite.srcDir, pages, cleanUrls)
 
   if (site.features.markdownCopies) {
     for (const entry of entries) {
@@ -206,7 +209,7 @@ export function buildEnd(vpSite: { pages: string[]; srcDir: string; outDir: stri
   }
 
   if (site.features.llms) {
-    writeLlms(vpSite.outDir, entries, site, siteUrl)
+    writeLlms(vpSite.outDir, entries, site, siteUrl, cleanUrls)
   }
 
   writeRobots(vpSite.outDir, site, siteUrl)
@@ -221,13 +224,13 @@ interface Entry {
   source: string
 }
 
-function makeEntries(docsRoot: string, pages: string[]): Entry[] {
+function makeEntries(docsRoot: string, pages: string[], cleanUrls: boolean): Entry[] {
   return pages.map((rel) => {
     const source = readFileSync(resolve(docsRoot, rel), 'utf8')
     const meta = readFrontmatter(source)
     return {
       rel,
-      path: pagePath(rel),
+      path: pagePath(rel, cleanUrls),
       title: meta.title || firstHeading(source) || rel.replace(/\.md$/, ''),
       description: meta.description || '',
       order: Number.isFinite(meta.order) ? Number(meta.order) : 999,
@@ -250,7 +253,7 @@ function scanPages(docsRoot: string): string[] {
   return pages
 }
 
-function renderLlms(entries: Entry[], site: SiteConfig, siteUrl: string) {
+function renderLlms(entries: Entry[], site: SiteConfig, siteUrl: string, cleanUrls: boolean) {
   const docEntries = entries.filter((item) => item.rel !== 'index.md' && item.rel !== '404.md')
   const lines: string[] = [
     `# ${site.title}`,
@@ -259,7 +262,9 @@ function renderLlms(entries: Entry[], site: SiteConfig, siteUrl: string) {
     '',
     `- 站点：${siteUrl}/`,
     ...(site.author.url ? [`- 作者：${site.author.name}（${site.author.url}）`] : []),
-    '- 每篇文章的 Markdown 版本：在网址后加 `.md`，例如 `/guide/getting-started.md`。',
+    cleanUrls
+      ? '- 每篇文章的 Markdown 版本：在网址后加 `.md`，例如 `/guide/getting-started.md`。'
+      : '- 每篇文章的 Markdown 版本：把网址里的 `.html` 换成 `.md`，例如 `/guide/getting-started.md`。',
     '- 全站正文合集：/llms-full.txt',
     ''
   ]
@@ -301,9 +306,10 @@ function writeLlms(
   outDir: string,
   entries: Entry[],
   site: SiteConfig,
-  siteUrl: string
+  siteUrl: string,
+  cleanUrls: boolean
 ) {
-  const { index, full } = renderLlms(entries, site, siteUrl)
+  const { index, full } = renderLlms(entries, site, siteUrl, cleanUrls)
   writeFileSync(join(outDir, 'llms.txt'), index)
   writeFileSync(join(outDir, 'llms-full.txt'), full)
 }
@@ -322,7 +328,7 @@ function writeRobots(outDir: string, site: SiteConfig, siteUrl: string) {
  * Vite dev server middleware: serve the cleaned Markdown copy of a page at
  * `/path/page.md`, matching the production build output.
  */
-export function markdownDevPlugin(options: { docsRoot: string; site: SiteConfig; siteUrl: string }) {
+export function markdownDevPlugin(options: { docsRoot: string; site: SiteConfig; siteUrl: string; cleanUrls: boolean }) {
   const root = resolve(options.docsRoot)
   return {
     name: 'folio-markdown-copies',
@@ -330,7 +336,7 @@ export function markdownDevPlugin(options: { docsRoot: string; site: SiteConfig;
       server.middlewares.use((req, res, next) => {
         const pathname = (req.url || '').split('?')[0]
         if (pathname === '/llms.txt' || pathname === '/llms-full.txt') {
-          const { index, full } = renderLlms(makeEntries(root, scanPages(root)), options.site, options.siteUrl)
+          const { index, full } = renderLlms(makeEntries(root, scanPages(root), options.cleanUrls), options.site, options.siteUrl, options.cleanUrls)
           res.setHeader('Content-Type', 'text/plain; charset=utf-8')
           res.end(pathname === '/llms.txt' ? index : full)
           return

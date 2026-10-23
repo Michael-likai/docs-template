@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { withBase } from 'vitepress'
+import { withPage } from '../links'
 import { siteConfig } from '../../site.config'
 import Logo from './Logo.vue'
 
@@ -17,7 +17,7 @@ const github = siteConfig.socialLinks.find((item) => item.icon === 'github')?.li
         <span>{{ siteConfig.footer.message }}</span>
       </div>
       <nav class="site-footer-links" aria-label="页脚导航">
-        <a v-for="item in siteConfig.footer.links" :key="item.link" :href="withBase(item.link)">{{ item.text }}</a>
+        <a v-for="item in siteConfig.footer.links" :key="item.link" :href="withPage(item.link)">{{ item.text }}</a>
         <a v-if="github" :href="github" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <p class="site-footer-copy">
